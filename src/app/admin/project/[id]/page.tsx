@@ -4,10 +4,28 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { isAdminLoggedIn } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
-import { Project, Phase, Task, Deliverable, ProjectComment, ProjectFile } from '@/lib/types'  // Changed Comment to ProjectComment
-import { 
-  CheckCircle, Circle, ArrowLeft, Save, Upload, 
-  FileText, Trash2, MessageSquare, Users, Palette, Code, Rocket, X
+import {
+  Project,
+  Phase,
+  Task,
+  Deliverable,
+  ProjectComment,
+  ProjectFile,
+} from '@/lib/types' // Changed Comment to ProjectComment
+import {
+  CheckCircle,
+  Circle,
+  ArrowLeft,
+  Save,
+  Upload,
+  FileText,
+  Trash2,
+  MessageSquare,
+  Users,
+  Palette,
+  Code,
+  Rocket,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import FileUpload from '../../../../components/FileUpload'
@@ -21,15 +39,21 @@ export default function AdminProjectEditor() {
   const [project, setProject] = useState<Project | null>(null)
   const [phases, setPhases] = useState<Phase[]>([])
   const [tasks, setTasks] = useState<Record<string, Task[]>>({})
-  const [deliverables, setDeliverables] = useState<Record<string, Deliverable[]>>({})
-  const [comments, setComments] = useState<Record<string, ProjectComment[]>>({})  // Changed Comment[] to ProjectComment[]
+  const [deliverables, setDeliverables] = useState<
+    Record<string, Deliverable[]>
+  >({})
+  const [comments, setComments] = useState<Record<string, ProjectComment[]>>({}) // Changed Comment[] to ProjectComment[]
   const [activePhase, setActivePhase] = useState(0)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(null)
+  const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
+    null
+  )
   const [newComment, setNewComment] = useState<Record<string, string>>({})
-const [submittingComment, setSubmittingComment] = useState<string | null>(null)
+  const [submittingComment, setSubmittingComment] = useState<string | null>(
+    null
+  )
 
   useEffect(() => {
     if (!isAdminLoggedIn()) {
@@ -73,7 +97,7 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
             .order('task_order', { ascending: true })
 
           if (tasksData) {
-            setTasks(prev => ({ ...prev, [phase.id]: tasksData }))
+            setTasks((prev) => ({ ...prev, [phase.id]: tasksData }))
           }
 
           // Deliverables
@@ -83,7 +107,10 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
             .eq('phase_id', phase.id)
 
           if (deliverablesData) {
-            setDeliverables(prev => ({ ...prev, [phase.id]: deliverablesData }))
+            setDeliverables((prev) => ({
+              ...prev,
+              [phase.id]: deliverablesData,
+            }))
 
             // Fetch comments for each deliverable
             for (const deliverable of deliverablesData) {
@@ -94,7 +121,10 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
                 .order('created_at', { ascending: true })
 
               if (commentsData) {
-                setComments(prev => ({ ...prev, [deliverable.id]: commentsData }))
+                setComments((prev) => ({
+                  ...prev,
+                  [deliverable.id]: commentsData,
+                }))
               }
             }
           }
@@ -120,30 +150,36 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
 
     if (!error) {
       // Update local state
-      setTasks(prev => ({
+      setTasks((prev) => ({
         ...prev,
-        [task.phase_id]: prev[task.phase_id].map(t =>
+        [task.phase_id]: prev[task.phase_id].map((t) =>
           t.id === task.id ? { ...t, completed: newCompleted } : t
-        )
+        ),
       }))
 
       // Recalculate phase completion
       const currentPhase = phases[activePhase]
       if (currentPhase) {
         const phaseTasks = tasks[currentPhase.id] || []
-        const completedCount = phaseTasks.filter(t => 
+        const completedCount = phaseTasks.filter((t) =>
           t.id === task.id ? newCompleted : t.completed
         ).length
-        const completionPercent = Math.round((completedCount / phaseTasks.length) * 100)
+        const completionPercent = Math.round(
+          (completedCount / phaseTasks.length) * 100
+        )
 
         await supabase
           .from('phases')
           .update({ completion: completionPercent })
           .eq('id', currentPhase.id)
 
-        setPhases(prev => prev.map(p =>
-          p.id === currentPhase.id ? { ...p, completion: completionPercent } : p
-        ))
+        setPhases((prev) =>
+          prev.map((p) =>
+            p.id === currentPhase.id
+              ? { ...p, completion: completionPercent }
+              : p
+          )
+        )
       }
     }
 
@@ -152,14 +188,11 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
 
   const updatePhaseCompletion = async (phaseId: string, completion: number) => {
     setSaving(true)
-    await supabase
-      .from('phases')
-      .update({ completion })
-      .eq('id', phaseId)
+    await supabase.from('phases').update({ completion }).eq('id', phaseId)
 
-    setPhases(prev => prev.map(p =>
-      p.id === phaseId ? { ...p, completion } : p
-    ))
+    setPhases((prev) =>
+      prev.map((p) => (p.id === phaseId ? { ...p, completion } : p))
+    )
     setSaving(false)
   }
 
@@ -170,64 +203,68 @@ const [submittingComment, setSubmittingComment] = useState<string | null>(null)
       .update({ next_steps: nextSteps })
       .eq('id', phaseId)
 
-    setPhases(prev => prev.map(p =>
-      p.id === phaseId ? { ...p, next_steps: nextSteps } : p
-    ))
+    setPhases((prev) =>
+      prev.map((p) => (p.id === phaseId ? { ...p, next_steps: nextSteps } : p))
+    )
     setSaving(false)
   }
 
- const updateDeliverableStatus = async (deliverableId: string, status: string) => {
-  setSaving(true)
-  await supabase
-    .from('deliverables')
-    .update({ status })
-    .eq('id', deliverableId)
+  const updateDeliverableStatus = async (
+    deliverableId: string,
+    status: string
+  ) => {
+    setSaving(true)
+    await supabase
+      .from('deliverables')
+      .update({ status })
+      .eq('id', deliverableId)
 
-  const currentPhase = phases[activePhase]
-  if (currentPhase && deliverables[currentPhase.id]) {
-    setDeliverables(prev => ({
-      ...prev,
-      [currentPhase.id]: prev[currentPhase.id].map(d =>
-        d.id === deliverableId ? { ...d, status: status as Deliverable['status'] } : d
-      )
-    }))
-  }
-  setSaving(false)
-}
-
-const addAdminComment = async (deliverableId: string) => {
-  const message = newComment[deliverableId]?.trim()
-  if (!message) return
-
-  setSubmittingComment(deliverableId)
-
-  try {
-    const { data, error } = await supabase
-      .from('comments')
-      .insert({
-        deliverable_id: deliverableId,
-        project_id: projectId,
-        user_type: 'admin',
-        user_name: 'Team',
-        message: message
-      })
-      .select()
-      .single()
-
-    if (!error && data) {
-      setComments(prev => ({
+    const currentPhase = phases[activePhase]
+    if (currentPhase && deliverables[currentPhase.id]) {
+      setDeliverables((prev) => ({
         ...prev,
-        [deliverableId]: [...(prev[deliverableId] || []), data]
+        [currentPhase.id]: prev[currentPhase.id].map((d) =>
+          d.id === deliverableId
+            ? { ...d, status: status as Deliverable['status'] }
+            : d
+        ),
       }))
-      setNewComment(prev => ({ ...prev, [deliverableId]: '' }))
     }
-  } catch (err) {
-    console.error('Comment error:', err)
+    setSaving(false)
   }
 
-  setSubmittingComment(null)
-}
+  const addAdminComment = async (deliverableId: string) => {
+    const message = newComment[deliverableId]?.trim()
+    if (!message) return
 
+    setSubmittingComment(deliverableId)
+
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          deliverable_id: deliverableId,
+          project_id: projectId,
+          user_type: 'admin',
+          user_name: 'Team',
+          message: message,
+        })
+        .select()
+        .single()
+
+      if (!error && data) {
+        setComments((prev) => ({
+          ...prev,
+          [deliverableId]: [...(prev[deliverableId] || []), data],
+        }))
+        setNewComment((prev) => ({ ...prev, [deliverableId]: '' }))
+      }
+    } catch (err) {
+      console.error('Comment error:', err)
+    }
+
+    setSubmittingComment(null)
+  }
 
   if (loading) {
     return (
@@ -252,84 +289,89 @@ const addAdminComment = async (deliverableId: string) => {
 
   const currentPhase = phases[activePhase]
   const currentTasks = currentPhase ? tasks[currentPhase.id] || [] : []
-  const currentDeliverables = currentPhase ? deliverables[currentPhase.id] || [] : []
+  const currentDeliverables = currentPhase
+    ? deliverables[currentPhase.id] || []
+    : []
 
   const getPhaseIcon = (phaseName: string) => {
     const icons: Record<string, any> = {
-      'Discovery': Users,
-      'Strategy': FileText,
-      'Design': Palette,
-      'Development': Code,
-      'Launch': Rocket
+      Discovery: Users,
+      Strategy: FileText,
+      Design: Palette,
+      Development: Code,
+      Launch: Rocket,
     }
     return icons[phaseName] || FileText
   }
 
   const PhaseIcon = currentPhase ? getPhaseIcon(currentPhase.name) : FileText
 
- const duplicateProject = async () => {
-  setSaving(true)
-  try {
-    const { data: newProject, error: projectError } = await supabase
-      .from('projects')
-      .insert({
-        client_name: project.client_name + ' (Copy)',
-        project_name: project.project_name + ' (Copy)',
-        passcode: `COPY-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-        start_date: project.start_date,
-        launch_date: project.launch_date,
-        current_phase: 0
-      })
-      .select()
-      .single()
-
-    if (projectError) throw projectError
-
-    for (const phase of phases) {
-      const { data: newPhase, error: phaseError } = await supabase
-        .from('phases')
+  const duplicateProject = async () => {
+    setSaving(true)
+    try {
+      const { data: newProject, error: projectError } = await supabase
+        .from('projects')
         .insert({
-          project_id: newProject.id,
-          phase_order: phase.phase_order,
-          name: phase.name,
-          status: phase.phase_order === 0 ? 'in-progress' : 'upcoming',
-          completion: 0,
-          next_steps: phase.next_steps
+          client_name: project.client_name + ' (Copy)',
+          project_name: project.project_name + ' (Copy)',
+          passcode: `COPY-${Math.random()
+            .toString(36)
+            .substring(2, 6)
+            .toUpperCase()}`,
+          start_date: project.start_date,
+          launch_date: project.launch_date,
+          current_phase: 0,
         })
         .select()
         .single()
 
-      if (phaseError) throw phaseError
+      if (projectError) throw projectError
 
-      const phaseTasks = tasks[phase.id] || []
-      if (phaseTasks.length > 0) {
-        const newTasks = phaseTasks.map(task => ({
-          phase_id: newPhase.id,
-          name: task.name,
-          completed: false,
-          task_order: task.task_order
-        }))
-        await supabase.from('tasks').insert(newTasks)
+      for (const phase of phases) {
+        const { data: newPhase, error: phaseError } = await supabase
+          .from('phases')
+          .insert({
+            project_id: newProject.id,
+            phase_order: phase.phase_order,
+            name: phase.name,
+            status: phase.phase_order === 0 ? 'in-progress' : 'upcoming',
+            completion: 0,
+            next_steps: phase.next_steps,
+          })
+          .select()
+          .single()
+
+        if (phaseError) throw phaseError
+
+        const phaseTasks = tasks[phase.id] || []
+        if (phaseTasks.length > 0) {
+          const newTasks = phaseTasks.map((task) => ({
+            phase_id: newPhase.id,
+            name: task.name,
+            completed: false,
+            task_order: task.task_order,
+          }))
+          await supabase.from('tasks').insert(newTasks)
+        }
+
+        const phaseDeliverables = deliverables[phase.id] || []
+        if (phaseDeliverables.length > 0) {
+          const newDeliverables = phaseDeliverables.map((d) => ({
+            phase_id: newPhase.id,
+            name: d.name,
+            status: 'not-started',
+          }))
+          await supabase.from('deliverables').insert(newDeliverables)
+        }
       }
 
-      const phaseDeliverables = deliverables[phase.id] || []
-      if (phaseDeliverables.length > 0) {
-        const newDeliverables = phaseDeliverables.map(d => ({
-          phase_id: newPhase.id,
-          name: d.name,
-          status: 'not-started'
-        }))
-        await supabase.from('deliverables').insert(newDeliverables)
-      }
+      router.push(`/admin/project/${newProject.id}`)
+    } catch (err) {
+      console.error('Duplicate error:', err)
+      alert('Failed to duplicate project')
+      setSaving(false)
     }
-
-    router.push(`/admin/project/${newProject.id}`)
-  } catch (err) {
-    console.error('Duplicate error:', err)
-    alert('Failed to duplicate project')
-    setSaving(false)
   }
-}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -345,9 +387,18 @@ const addAdminComment = async (deliverableId: string) => {
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{project.project_name}</h1>
+                <h1 className="text-2xl font-bold text-slate-900">
+                  {project.project_name}
+                </h1>
                 <p className="text-sm text-slate-600">{project.client_name}</p>
               </div>
+              <Link
+                href={`/admin/project/${projectId}/onboarding`}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-md"
+              >
+                <FileText className="w-4 h-4" />
+                View Onboarding Response
+              </Link>
             </div>
             <div className="flex items-center gap-3">
               {saving && (
@@ -358,7 +409,9 @@ const addAdminComment = async (deliverableId: string) => {
               )}
               <div className="text-right">
                 <div className="text-xs text-slate-500">Passcode</div>
-                <div className="text-sm font-semibold text-slate-900 font-mono">{project.passcode}</div>
+                <div className="text-sm font-semibold text-slate-900 font-mono">
+                  {project.passcode}
+                </div>
               </div>
             </div>
           </div>
@@ -370,13 +423,15 @@ const addAdminComment = async (deliverableId: string) => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-slate-900">Project Phases</h2>
-            <span className="text-sm text-slate-600">Phase {activePhase + 1} of {phases.length}</span>
+            <span className="text-sm text-slate-600">
+              Phase {activePhase + 1} of {phases.length}
+            </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {phases.map((phase, idx) => {
               const Icon = getPhaseIcon(phase.name)
               const isActive = idx === activePhase
-              
+
               return (
                 <button
                   key={phase.id}
@@ -389,7 +444,9 @@ const addAdminComment = async (deliverableId: string) => {
                 >
                   <Icon className="w-6 h-6 mx-auto mb-2" />
                   <div className="text-xs font-semibold">{phase.name}</div>
-                  <div className="text-xs opacity-75 mt-1">{phase.completion}%</div>
+                  <div className="text-xs opacity-75 mt-1">
+                    {phase.completion}%
+                  </div>
                 </button>
               )
             })}
@@ -408,20 +465,29 @@ const addAdminComment = async (deliverableId: string) => {
                     <PhaseIcon className="w-8 h-8" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-4">{currentPhase.name} Phase</h2>
-                    
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                      {currentPhase.name} Phase
+                    </h2>
+
                     {/* Completion Slider */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-slate-600">Phase Completion</span>
-                        <span className="font-semibold text-slate-900">{currentPhase.completion}%</span>
+                        <span className="font-semibold text-slate-900">
+                          {currentPhase.completion}%
+                        </span>
                       </div>
                       <input
                         type="range"
                         min="0"
                         max="100"
                         value={currentPhase.completion}
-                        onChange={(e) => updatePhaseCompletion(currentPhase.id, parseInt(e.target.value))}
+                        onChange={(e) =>
+                          updatePhaseCompletion(
+                            currentPhase.id,
+                            parseInt(e.target.value)
+                          )
+                        }
                         className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
                       />
                     </div>
@@ -435,7 +501,9 @@ const addAdminComment = async (deliverableId: string) => {
                   </label>
                   <textarea
                     value={currentPhase.next_steps}
-                    onChange={(e) => updateNextSteps(currentPhase.id, e.target.value)}
+                    onChange={(e) =>
+                      updateNextSteps(currentPhase.id, e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-violet-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                     rows={3}
                     placeholder="What should the client expect next?"
@@ -445,7 +513,9 @@ const addAdminComment = async (deliverableId: string) => {
 
               {/* Tasks - Clickable */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Tasks (Click to toggle)</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
+                  Tasks (Click to toggle)
+                </h3>
                 <div className="space-y-2">
                   {currentTasks.map((task) => (
                     <button
@@ -458,7 +528,11 @@ const addAdminComment = async (deliverableId: string) => {
                       ) : (
                         <Circle className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
                       )}
-                      <span className={`text-slate-700 ${task.completed ? 'line-through text-slate-400' : ''}`}>
+                      <span
+                        className={`text-slate-700 ${
+                          task.completed ? 'line-through text-slate-400' : ''
+                        }`}
+                      >
                         {task.name}
                       </span>
                     </button>
@@ -468,19 +542,28 @@ const addAdminComment = async (deliverableId: string) => {
 
               {/* Deliverables - Editable Status */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Deliverables</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
+                  Deliverables
+                </h3>
                 <div className="space-y-3">
                   {currentDeliverables.map((item) => (
-                    <div key={item.id} className="p-4 border-2 border-slate-200 rounded-lg hover:border-slate-300 transition-all">
+                    <div
+                      key={item.id}
+                      className="p-4 border-2 border-slate-200 rounded-lg hover:border-slate-300 transition-all"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-slate-400" />
-                          <span className="font-medium text-slate-900">{item.name}</span>
+                          <span className="font-medium text-slate-900">
+                            {item.name}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <select
                             value={item.status}
-                            onChange={(e) => updateDeliverableStatus(item.id, e.target.value)}
+                            onChange={(e) =>
+                              updateDeliverableStatus(item.id, e.target.value)
+                            }
                             className="px-3 py-1 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-slate-900 focus:border-transparent"
                           >
                             <option value="not-started">Not Started</option>
@@ -510,13 +593,23 @@ const addAdminComment = async (deliverableId: string) => {
                           </div>
                           <div className="space-y-2 max-h-40 overflow-y-auto">
                             {comments[item.id].map((comment) => (
-                              <div key={comment.id} className="p-2 bg-slate-50 rounded text-sm">
+                              <div
+                                key={comment.id}
+                                className="p-2 bg-slate-50 rounded text-sm"
+                              >
                                 <div className="font-semibold text-slate-900">
-                                  {comment.user_name} <span className="font-normal text-slate-500">({comment.user_type})</span>
+                                  {comment.user_name}{' '}
+                                  <span className="font-normal text-slate-500">
+                                    ({comment.user_type})
+                                  </span>
                                 </div>
-                                <div className="text-slate-700">{comment.message}</div>
+                                <div className="text-slate-700">
+                                  {comment.message}
+                                </div>
                                 <div className="text-xs text-slate-500 mt-1">
-                                  {new Date(comment.created_at).toLocaleString()}
+                                  {new Date(
+                                    comment.created_at
+                                  ).toLocaleString()}
                                 </div>
                               </div>
                             ))}
@@ -532,50 +625,54 @@ const addAdminComment = async (deliverableId: string) => {
             {/* Right Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions */}
-<div className="bg-white rounded-2xl shadow-lg p-6">
-  <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
-  <div className="space-y-3">
-    <button 
-      onClick={() => {
-        setUploadDeliverableId(null)
-        setShowUploadModal(true)
-      }}
-      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
-    >
-      <Upload className="w-4 h-4" />
-      Upload Files
-    </button>
-    <Link
-      href={`/admin/project/${projectId}/edit`}
-      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
-    >
-      <Settings className="w-4 h-4" />
-      Edit Project
-    </Link>
-    <button
-      onClick={async () => {
-        if (confirm(`Duplicate "${project.project_name}"?`)) {
-          await duplicateProject()
-        }
-      }}
-      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
-    >
-      <Copy className="w-4 h-4" />
-      Duplicate Project
-    </button>
-    <Link
-      href={`/project/${projectId}?code=${project.passcode}`}
-      target="_blank"
-      className="block w-full text-center px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
-    >
-      View Client Portal
-    </Link>
-  </div>
-</div>
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      setUploadDeliverableId(null)
+                      setShowUploadModal(true)
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Files
+                  </button>
+                  <Link
+                    href={`/admin/project/${projectId}/edit`}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Edit Project
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      if (confirm(`Duplicate "${project.project_name}"?`)) {
+                        await duplicateProject()
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Duplicate Project
+                  </button>
+                  <Link
+                    href={`/project/${projectId}?code=${project.passcode}`}
+                    target="_blank"
+                    className="block w-full text-center px-4 py-3 border-2 border-slate-200 text-slate-700 rounded-lg hover:border-slate-900 transition-colors"
+                  >
+                    View Client Portal
+                  </Link>
+                </div>
+              </div>
 
               {/* Project Info */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Project Info</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
+                  Project Info
+                </h3>
                 <div className="space-y-3 text-sm">
                   <div>
                     <div className="text-slate-500">Start Date</div>
@@ -591,7 +688,9 @@ const addAdminComment = async (deliverableId: string) => {
                   </div>
                   <div>
                     <div className="text-slate-500">Client Passcode</div>
-                    <div className="font-mono font-semibold text-slate-900">{project.passcode}</div>
+                    <div className="font-mono font-semibold text-slate-900">
+                      {project.passcode}
+                    </div>
                   </div>
                 </div>
               </div>

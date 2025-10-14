@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 import { useState, useEffect, useRef } from 'react'
 import {
   CheckCircle,
@@ -340,6 +342,37 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
           </div>
         </div>
       </header>
+
+      {/* ONBOARDING BANNER - Added here */}
+      {project && !project.onboarding_completed && (
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-6">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-6 shadow-md backdrop-blur-sm">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
+                  <FileText className="w-6 h-6 text-yellow-900" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-yellow-900 mb-1">
+                  Action Required: Complete Onboarding
+                </h3>
+                <p className="text-yellow-800 text-sm mb-3">
+                  Please complete the onboarding questionnaire to help us
+                  understand your project better and deliver the best results.
+                </p>
+                <Link
+                  href={`/project/${projectId}/onboarding`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all shadow-md hover:shadow-lg font-semibold"
+                >
+                  Start Onboarding
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {mobileMenuOpen && (
         <div className="md:hidden bg-white/40 backdrop-blur-xl border-b border-white/20 p-6">
