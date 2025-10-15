@@ -99,10 +99,10 @@ interface OnboardingData {
   contact_preference: string
   additional_notes: string
 
-  brand_guide_files: string
-  logo_files: string
-  font_files: string
-  media_files: string
+  brand_guide_urls: string[]
+  logo_urls: string[]
+  font_urls: string[]
+  media_urls: string[]
 }
 
 interface ClientOnboardingProps {
@@ -127,6 +127,10 @@ export default function ClientOnboarding({
     photoshoot: false,
     copywriting: false,
     seo: false,
+    brand_guide_urls: [], // ADD THESE 4 LINES
+    logo_urls: [],
+    font_urls: [],
+    media_urls: [],
   })
 
   const totalSections = 13
@@ -185,6 +189,72 @@ export default function ClientOnboarding({
       alert('There was an error submitting your information. Please try again.')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const [uploadingFiles, setUploadingFiles] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
+    {}
+  )
+
+  const uploadFiles = async (
+    files: FileList,
+    type: 'brand_guide' | 'logo' | 'font' | 'media'
+  ) => {
+    setUploadingFiles(type)
+    const uploadedUrls: string[] = []
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${projectId}/${type}/${Date.now()}_${Math.random()
+          .toString(36)
+          .substring(7)}.${fileExt}`
+
+        // Update progress
+        setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }))
+
+        const { data, error } = await supabase.storage
+          .from('onboarding-assets')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false,
+          })
+
+        if (error) {
+          console.error('Upload error:', error)
+          alert(`Error uploading ${file.name}: ${error.message}`)
+          continue
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('onboarding-assets')
+          .getPublicUrl(fileName)
+
+        if (urlData) {
+          uploadedUrls.push(urlData.publicUrl)
+          setUploadProgress((prev) => ({ ...prev, [file.name]: 100 }))
+        }
+      }
+
+      // Update form data with URLs
+      const urlKey = `${type}_urls` as keyof OnboardingData
+      handleInputChange(urlKey, [
+        ...((formData[urlKey] as string[]) || []),
+        ...uploadedUrls,
+      ] as unknown)
+
+      // Clear progress after a delay
+      setTimeout(() => {
+        setUploadProgress({})
+      }, 2000)
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Error uploading files. Please try again.')
+    } finally {
+      setUploadingFiles(null)
     }
   }
 
@@ -1412,7 +1482,7 @@ export default function ClientOnboarding({
             </p>
             <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-800">
-                Upload any brand assets you have available. These will be
+                Upload any brand assets you have available. Files will be
                 securely stored for the project.
               </p>
             </div>
@@ -1430,34 +1500,58 @@ export default function ClientOnboarding({
                     multiple
                     accept=".pdf,.doc,.docx"
                     className="hidden"
-                    onChange={(e) => {
+                    disabled={uploadingFiles === 'brand_guide'}
+                    onChange={async (e) => {
                       const files = e.target.files
                       if (files && files.length > 0) {
-                        const fileNames = Array.from(files)
-                          .map((f) => f.name)
-                          .join(', ')
-                        // Store file info in form data for now
-                        handleInputChange('brand_guide_files', fileNames)
+                        await uploadFiles(files, 'brand_guide')
                       }
                     }}
                   />
                   <label
                     htmlFor="brand_guide"
-                    className="cursor-pointer flex flex-col items-center"
+                    className={`cursor-pointer flex flex-col items-center ${
+                      uploadingFiles === 'brand_guide' ? 'opacity-50' : ''
+                    }`}
                   >
                     <div className="text-4xl mb-2">📄</div>
                     <div className="text-sm font-semibold text-slate-700">
-                      Click to upload or drag and drop
+                      {uploadingFiles === 'brand_guide'
+                        ? 'Uploading...'
+                        : 'Click to upload or drag and drop'}
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
                       PDF, DOC, DOCX (Multiple files allowed)
                     </div>
-                    {formData.brand_guide_files && (
-                      <div className="mt-3 text-xs text-green-700 font-medium">
-                        ✓ Files selected: {formData.brand_guide_files}
-                      </div>
-                    )}
+                    {formData.brand_guide_urls &&
+                      formData.brand_guide_urls.length > 0 && (
+                        <div className="mt-3 text-xs text-green-700 font-medium">
+                          ✓ {formData.brand_guide_urls.length} file(s) uploaded
+                        </div>
+                      )}
                   </label>
+                  {Object.keys(uploadProgress).length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {Object.entries(uploadProgress).map(
+                        ([name, progress]) => (
+                          <div key={name} className="text-xs">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-slate-600">{name}</span>
+                              <span className="text-slate-600">
+                                {progress}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-200 rounded-full h-1.5">
+                              <div
+                                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1473,30 +1567,32 @@ export default function ClientOnboarding({
                     multiple
                     accept=".ai,.eps,.svg,.png,.pdf"
                     className="hidden"
-                    onChange={(e) => {
+                    disabled={uploadingFiles === 'logo'}
+                    onChange={async (e) => {
                       const files = e.target.files
                       if (files && files.length > 0) {
-                        const fileNames = Array.from(files)
-                          .map((f) => f.name)
-                          .join(', ')
-                        handleInputChange('logo_files', fileNames)
+                        await uploadFiles(files, 'logo')
                       }
                     }}
                   />
                   <label
                     htmlFor="logo_files"
-                    className="cursor-pointer flex flex-col items-center"
+                    className={`cursor-pointer flex flex-col items-center ${
+                      uploadingFiles === 'logo' ? 'opacity-50' : ''
+                    }`}
                   >
                     <div className="text-4xl mb-2">🎨</div>
                     <div className="text-sm font-semibold text-slate-700">
-                      Click to upload or drag and drop
+                      {uploadingFiles === 'logo'
+                        ? 'Uploading...'
+                        : 'Click to upload or drag and drop'}
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
                       AI, EPS, SVG, PNG, PDF (Multiple files allowed)
                     </div>
-                    {formData.logo_files && (
+                    {formData.logo_urls && formData.logo_urls.length > 0 && (
                       <div className="mt-3 text-xs text-green-700 font-medium">
-                        ✓ Files selected: {formData.logo_files}
+                        ✓ {formData.logo_urls.length} file(s) uploaded
                       </div>
                     )}
                   </label>
@@ -1515,30 +1611,32 @@ export default function ClientOnboarding({
                     multiple
                     accept=".ttf,.otf,.woff,.woff2"
                     className="hidden"
-                    onChange={(e) => {
+                    disabled={uploadingFiles === 'font'}
+                    onChange={async (e) => {
                       const files = e.target.files
                       if (files && files.length > 0) {
-                        const fileNames = Array.from(files)
-                          .map((f) => f.name)
-                          .join(', ')
-                        handleInputChange('font_files', fileNames)
+                        await uploadFiles(files, 'font')
                       }
                     }}
                   />
                   <label
                     htmlFor="font_files"
-                    className="cursor-pointer flex flex-col items-center"
+                    className={`cursor-pointer flex flex-col items-center ${
+                      uploadingFiles === 'font' ? 'opacity-50' : ''
+                    }`}
                   >
                     <div className="text-4xl mb-2">Aa</div>
                     <div className="text-sm font-semibold text-slate-700">
-                      Click to upload or drag and drop
+                      {uploadingFiles === 'font'
+                        ? 'Uploading...'
+                        : 'Click to upload or drag and drop'}
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
                       TTF, OTF, WOFF, WOFF2 (Multiple files allowed)
                     </div>
-                    {formData.font_files && (
+                    {formData.font_urls && formData.font_urls.length > 0 && (
                       <div className="mt-3 text-xs text-green-700 font-medium">
-                        ✓ Files selected: {formData.font_files}
+                        ✓ {formData.font_urls.length} file(s) uploaded
                       </div>
                     )}
                   </label>
@@ -1557,30 +1655,32 @@ export default function ClientOnboarding({
                     multiple
                     accept="image/*,video/*"
                     className="hidden"
-                    onChange={(e) => {
+                    disabled={uploadingFiles === 'media'}
+                    onChange={async (e) => {
                       const files = e.target.files
                       if (files && files.length > 0) {
-                        const fileNames = Array.from(files)
-                          .map((f) => f.name)
-                          .join(', ')
-                        handleInputChange('media_files', fileNames)
+                        await uploadFiles(files, 'media')
                       }
                     }}
                   />
                   <label
                     htmlFor="media_files"
-                    className="cursor-pointer flex flex-col items-center"
+                    className={`cursor-pointer flex flex-col items-center ${
+                      uploadingFiles === 'media' ? 'opacity-50' : ''
+                    }`}
                   >
                     <div className="text-4xl mb-2">📸</div>
                     <div className="text-sm font-semibold text-slate-700">
-                      Click to upload or drag and drop
+                      {uploadingFiles === 'media'
+                        ? 'Uploading...'
+                        : 'Click to upload or drag and drop'}
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
                       JPG, PNG, MP4, MOV, etc. (Multiple files allowed)
                     </div>
-                    {formData.media_files && (
+                    {formData.media_urls && formData.media_urls.length > 0 && (
                       <div className="mt-3 text-xs text-green-700 font-medium">
-                        ✓ Files selected: {formData.media_files}
+                        ✓ {formData.media_urls.length} file(s) uploaded
                       </div>
                     )}
                   </label>

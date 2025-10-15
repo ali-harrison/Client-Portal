@@ -1,11 +1,96 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { isAdminLoggedIn } from '@/lib/adminAuth'
 import { ArrowLeft, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
+import { Project } from '@/lib/types'
+
+// Define OnboardingResponses interface - matches your actual form fields
+interface OnboardingResponses {
+  // Company Information
+  company_name?: string
+  years_in_business?: string
+  industry?: string
+  company_founded_reason?: string
+  problems_solved?: string
+  long_term_goals?: string
+
+  // Target Audience
+  primary_audience?: string
+  secondary_audience?: string
+  ideal_consumer?: string
+  audience_pain_points?: string
+
+  // Brand Ecosystem (Social Links)
+  website_url?: string
+  facebook?: string
+  instagram?: string
+  linkedin?: string
+  twitter?: string
+  tiktok?: string
+
+  // Business Goals
+  business_problem?: string
+  project_goals?: string
+  success_definition?: string
+
+  // Brand Values & Tonality
+  company_stands_for?: string
+  mission_vision?: string
+  brand_values?: string
+  brand_adjectives?: string
+  brand_personality?: string
+  tone_of_voice?: string
+  brand_emotions?: string
+
+  // Messaging Goals
+  visitor_feeling?: string
+  visitor_goals?: string
+  key_message?: string
+
+  // Competitors
+  competitors?: string
+  differentiation?: string
+  inspiring_brands?: string
+
+  // Project Details
+  budget?: string
+  referral_source?: string
+  multiple_languages?: string
+  languages?: string
+  important_dates?: string
+  stock_photography?: boolean
+  photoshoot?: boolean
+  copywriting?: boolean
+  seo?: boolean
+
+  // Contact Information
+  first_name?: string
+  last_name?: string
+  email?: string
+  phone?: string
+  role?: string
+  contact_preference?: string
+
+  // Uploaded Files (URLs from Supabase Storage)
+  brand_guide_urls?: string[]
+  logo_urls?: string[]
+  font_urls?: string[]
+  media_urls?: string[]
+
+  // Flexible catch-all for any other fields
+  [key: string]: unknown
+}
+
+// Define OnboardingData interface - matches your database table
+interface OnboardingData {
+  id: string
+  project_id: string
+  response_data: OnboardingResponses
+  submitted_at: string
+}
 
 export default function AdminOnboardingView() {
   const params = useParams()
@@ -13,8 +98,10 @@ export default function AdminOnboardingView() {
   const projectId = params.id as string
 
   const [loading, setLoading] = useState(true)
-  const [onboardingData, setOnboardingData] = useState<any>(null)
-  const [project, setProject] = useState<any>(null)
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(
+    null
+  )
+  const [project, setProject] = useState<Project | null>(null)
 
   useEffect(() => {
     if (!isAdminLoggedIn()) {
@@ -26,7 +113,6 @@ export default function AdminOnboardingView() {
 
   const fetchOnboardingData = async () => {
     try {
-      // Fetch project info
       const { data: projectData } = await supabase
         .from('projects')
         .select('*')
@@ -37,7 +123,6 @@ export default function AdminOnboardingView() {
         setProject(projectData)
       }
 
-      // Fetch onboarding responses
       const { data: responseData } = await supabase
         .from('onboarding_responses')
         .select('*')
@@ -57,6 +142,8 @@ export default function AdminOnboardingView() {
   }
 
   const downloadAsJSON = () => {
+    if (!onboardingData) return
+
     const dataStr = JSON.stringify(onboardingData.response_data, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)
@@ -109,7 +196,6 @@ export default function AdminOnboardingView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
           <Link
             href={`/admin/project/${projectId}`}
@@ -142,10 +228,7 @@ export default function AdminOnboardingView() {
           </div>
         </div>
 
-        {/* Content - I'll continue this in the next message */}
-        {/* Content */}
         <div className="space-y-6">
-          {/* Company Information */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Company Information
@@ -200,7 +283,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Target Audience */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Target Audience
@@ -243,7 +325,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Brand Ecosystem */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Brand Ecosystem
@@ -342,7 +423,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Business Goals */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Business Goals
@@ -375,7 +455,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Brand Values */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Brand Values & Tonality
@@ -442,7 +521,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Messaging Goals */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Messaging Goals
@@ -475,7 +553,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Competitors */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Competitor Analysis
@@ -508,7 +585,6 @@ export default function AdminOnboardingView() {
             </div>
           </div>
 
-          {/* Project Details */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Project Details
@@ -579,7 +655,6 @@ export default function AdminOnboardingView() {
             )}
           </div>
 
-          {/* Contact Information */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-900 mb-4">
               Contact Information
@@ -621,6 +696,191 @@ export default function AdminOnboardingView() {
               </div>
             </div>
           </div>
+
+          {(data.brand_guide_urls && data.brand_guide_urls.length > 0) ||
+          (data.logo_urls && data.logo_urls.length > 0) ||
+          (data.font_urls && data.font_urls.length > 0) ||
+          (data.media_urls && data.media_urls.length > 0) ? (
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">
+                Uploaded Files
+              </h2>
+
+              {data.brand_guide_urls && data.brand_guide_urls.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-slate-500 mb-3">
+                    Brand Guide Documentation
+                  </h3>
+                  <div className="space-y-2">
+                    {data.brand_guide_urls.map((url, index) => {
+                      const fileName =
+                        url.split('/').pop() || `File ${index + 1}`
+                      return (
+                        <a
+                          key={index}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+                        >
+                          <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+                            📄
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {fileName}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Brand Guide
+                            </p>
+                          </div>
+                          <Download className="w-5 h-5 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {data.logo_urls && data.logo_urls.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-slate-500 mb-3">
+                    Logo Files
+                  </h3>
+                  <div className="space-y-2">
+                    {data.logo_urls.map((url, index) => {
+                      const fileName =
+                        url.split('/').pop() || `File ${index + 1}`
+                      return (
+                        <a
+                          key={index}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group"
+                        >
+                          <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white">
+                            🎨
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {fileName}
+                            </p>
+                            <p className="text-xs text-slate-500">Logo</p>
+                          </div>
+                          <Download className="w-5 h-5 text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {data.font_urls && data.font_urls.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-slate-500 mb-3">
+                    Font Files
+                  </h3>
+                  <div className="space-y-2">
+                    {data.font_urls.map((url, index) => {
+                      const fileName =
+                        url.split('/').pop() || `File ${index + 1}`
+                      return (
+                        <a
+                          key={index}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group"
+                        >
+                          <div className="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                            Aa
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {fileName}
+                            </p>
+                            <p className="text-xs text-slate-500">Font</p>
+                          </div>
+                          <Download className="w-5 h-5 text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {data.media_urls && data.media_urls.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-500 mb-3">
+                    Photos & Videos
+                  </h3>
+                  <div className="space-y-2">
+                    {data.media_urls.map((url, index) => {
+                      const fileName =
+                        url.split('/').pop() || `File ${index + 1}`
+                      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url)
+                      return (
+                        <a
+                          key={index}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
+                        >
+                          {isImage ? (
+                            <img
+                              src={url}
+                              alt={fileName}
+                              className="w-10 h-10 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white">
+                              🎬
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {fileName}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {isImage ? 'Image' : 'Video'}
+                            </p>
+                          </div>
+                          <Download className="w-5 h-5 text-green-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 pt-6 border-t border-slate-200">
+                <button
+                  onClick={() => {
+                    const allUrls = [
+                      ...(data.brand_guide_urls || []),
+                      ...(data.logo_urls || []),
+                      ...(data.font_urls || []),
+                      ...(data.media_urls || []),
+                    ]
+                    allUrls.forEach((url) => {
+                      window.open(url, '_blank')
+                    })
+                  }}
+                  className="w-full px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 font-semibold"
+                >
+                  <Download className="w-5 h-5" />
+                  Open All Files (
+                  {(data.brand_guide_urls?.length || 0) +
+                    (data.logo_urls?.length || 0) +
+                    (data.font_urls?.length || 0) +
+                    (data.media_urls?.length || 0)}{' '}
+                  files)
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

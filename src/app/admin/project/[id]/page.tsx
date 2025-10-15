@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { isAdminLoggedIn } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
@@ -26,6 +26,7 @@ import {
   Code,
   Rocket,
   X,
+  LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import FileUpload from '../../../../components/FileUpload'
@@ -294,7 +295,7 @@ export default function AdminProjectEditor() {
     : []
 
   const getPhaseIcon = (phaseName: string) => {
-    const icons: Record<string, any> = {
+    const icons: Record<string, LucideIcon> = {
       Discovery: Users,
       Strategy: FileText,
       Design: Palette,
