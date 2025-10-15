@@ -234,38 +234,38 @@ export default function AdminProjectEditor() {
     setSaving(false)
   }
 
-  const addAdminComment = async (deliverableId: string) => {
-    const message = newComment[deliverableId]?.trim()
-    if (!message) return
+  // const addAdminComment = async (deliverableId: string) => {
+  //   const message = newComment[deliverableId]?.trim()
+  //   if (!message) return
 
-    setSubmittingComment(deliverableId)
+  //   setSubmittingComment(deliverableId)
 
-    try {
-      const { data, error } = await supabase
-        .from('comments')
-        .insert({
-          deliverable_id: deliverableId,
-          project_id: projectId,
-          user_type: 'admin',
-          user_name: 'Team',
-          message: message,
-        })
-        .select()
-        .single()
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('comments')
+  //       .insert({
+  //         deliverable_id: deliverableId,
+  //         project_id: projectId,
+  //         user_type: 'admin',
+  //         user_name: 'Team',
+  //         message: message,
+  //       })
+  //       .select()
+  //       .single()
 
-      if (!error && data) {
-        setComments((prev) => ({
-          ...prev,
-          [deliverableId]: [...(prev[deliverableId] || []), data],
-        }))
-        setNewComment((prev) => ({ ...prev, [deliverableId]: '' }))
-      }
-    } catch (err) {
-      console.error('Comment error:', err)
-    }
+  //     if (!error && data) {
+  //       setComments((prev) => ({
+  //         ...prev,
+  //         [deliverableId]: [...(prev[deliverableId] || []), data],
+  //       }))
+  //       setNewComment((prev) => ({ ...prev, [deliverableId]: '' }))
+  //     }
+  //   } catch (err) {
+  //     console.error('Comment error:', err)
+  //   }
 
-    setSubmittingComment(null)
-  }
+  //   setSubmittingComment(null)
+  // }
 
   if (loading) {
     return (
@@ -294,7 +294,7 @@ export default function AdminProjectEditor() {
     ? deliverables[currentPhase.id] || []
     : []
 
-  const getPhaseIcon = (phaseName: string) => {
+  const getPhaseIcon = (phaseName: string): LucideIcon => {
     const icons: Record<string, LucideIcon> = {
       Discovery: Users,
       Strategy: FileText,

@@ -215,7 +215,7 @@ export default function ClientOnboarding({
         // Update progress
         setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }))
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from('onboarding-assets')
           .upload(fileName, file, {
             cacheControl: '3600',

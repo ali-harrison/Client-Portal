@@ -829,6 +829,7 @@ export default function AdminOnboardingView() {
                           className="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
                         >
                           {isImage ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={url}
                               alt={fileName}

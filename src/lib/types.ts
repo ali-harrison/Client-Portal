@@ -1,4 +1,5 @@
 export interface Project {
+  onboarding_completed: unknown
   id: string
   passcode: string
   client_name: string
@@ -35,7 +36,8 @@ export interface Deliverable {
   file_url?: string
 }
 
-export interface ProjectComment {  // Changed from Comment
+export interface ProjectComment {
+  // Changed from Comment
   id: string
   deliverable_id: string
   project_id: string

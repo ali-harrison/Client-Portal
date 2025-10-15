@@ -4,13 +4,17 @@ import { useState } from 'react'
 import { Lock, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Project } from '@/lib/types' // Add this import at the top
 
 interface PasscodeAuthProps {
   projectId?: string
-  onSuccess: (projectData: any) => void
+  onSuccess: (projectData: Project) => void // Changed from any to Project
 }
 
-export default function PasscodeAuth({ projectId, onSuccess }: PasscodeAuthProps) {
+export default function PasscodeAuth({
+  projectId,
+  onSuccess,
+}: PasscodeAuthProps) {
   const [passcode, setPasscode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -37,12 +41,13 @@ export default function PasscodeAuth({ projectId, onSuccess }: PasscodeAuthProps
 
       // Success! Pass project data back
       onSuccess(data)
-      
+
       // Optionally redirect to project page
       if (!projectId) {
         router.push(`/project/${data.id}?code=${passcode}`)
       }
-    } catch (err) {
+    } catch {
+      // Removed err since it's unused
       setError('Something went wrong. Please try again.')
       setLoading(false)
     }
@@ -56,7 +61,7 @@ export default function PasscodeAuth({ projectId, onSuccess }: PasscodeAuthProps
             <Lock className="w-8 h-8 text-slate-700" />
           </div>
         </div>
-        
+
         <h1 className="text-2xl font-bold text-center text-slate-900 mb-2">
           Access Your Project
         </h1>
@@ -66,7 +71,10 @@ export default function PasscodeAuth({ projectId, onSuccess }: PasscodeAuthProps
 
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="passcode" className="block text-sm font-medium text-slate-700 mb-2">
+            <label
+              htmlFor="passcode"
+              className="block text-sm font-medium text-slate-700 mb-2"
+            >
               Passcode
             </label>
             <input
@@ -98,8 +106,11 @@ export default function PasscodeAuth({ projectId, onSuccess }: PasscodeAuthProps
         </form>
 
         <p className="text-center text-sm text-slate-500 mt-6">
-          Don't have a passcode?{' '}
-          <a href="mailto:hello@yourdomain.com" className="text-slate-900 font-medium hover:underline">
+          Don&apos;t have a passcode?{' '}
+          <a
+            href="mailto:hello@yourdomain.com"
+            className="text-slate-900 font-medium hover:underline"
+          >
             Contact us
           </a>
         </p>

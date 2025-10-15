@@ -26,13 +26,19 @@ export default function NewProject() {
     }
     // Generate initial passcode
     generatePasscode()
-  }, [])
+  }, [router])
 
   const generatePasscode = () => {
     // Generate format: XXXX-XXXX
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // Removed confusing chars
-    const part1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    const part1 = Array.from(
+      { length: 4 },
+      () => chars[Math.floor(Math.random() * chars.length)]
+    ).join('')
+    const part2 = Array.from(
+      { length: 4 },
+      () => chars[Math.floor(Math.random() * chars.length)]
+    ).join('')
     setPasscode(`${part1}-${part2}`)
   }
 
@@ -51,7 +57,7 @@ export default function NewProject() {
           passcode: passcode,
           start_date: startDate,
           launch_date: launchDate,
-          current_phase: 0
+          current_phase: 0,
         })
         .select()
         .single()
@@ -68,7 +74,7 @@ export default function NewProject() {
           name: 'Discovery',
           status: 'in-progress',
           completion: 0,
-          next_steps: 'Initial consultation and project kickoff'
+          next_steps: 'Initial consultation and project kickoff',
         },
         {
           project_id: project.id,
@@ -76,7 +82,7 @@ export default function NewProject() {
           name: 'Strategy',
           status: 'upcoming',
           completion: 0,
-          next_steps: 'Define site architecture and content strategy'
+          next_steps: 'Define site architecture and content strategy',
         },
         {
           project_id: project.id,
@@ -84,7 +90,7 @@ export default function NewProject() {
           name: 'Design',
           status: 'upcoming',
           completion: 0,
-          next_steps: 'Create mood board and visual designs'
+          next_steps: 'Create mood board and visual designs',
         },
         {
           project_id: project.id,
@@ -92,7 +98,7 @@ export default function NewProject() {
           name: 'Development',
           status: 'upcoming',
           completion: 0,
-          next_steps: 'Build the website'
+          next_steps: 'Build the website',
         },
         {
           project_id: project.id,
@@ -100,8 +106,8 @@ export default function NewProject() {
           name: 'Launch',
           status: 'upcoming',
           completion: 0,
-          next_steps: 'Final testing and go live'
-        }
+          next_steps: 'Final testing and go live',
+        },
       ]
 
       const { data: phases, error: phasesError } = await supabase
@@ -118,48 +124,178 @@ export default function NewProject() {
 
       // Discovery tasks
       tasksData.push(
-        { phase_id: phases[0].id, name: 'Initial consultation call', completed: false, task_order: 0 },
-        { phase_id: phases[0].id, name: 'Send client questionnaire', completed: false, task_order: 1 },
-        { phase_id: phases[0].id, name: 'Review competitors and inspiration', completed: false, task_order: 2 },
-        { phase_id: phases[0].id, name: 'Define project goals', completed: false, task_order: 3 },
-        { phase_id: phases[0].id, name: 'Contract signed', completed: false, task_order: 4 }
+        {
+          phase_id: phases[0].id,
+          name: 'Initial consultation call',
+          completed: false,
+          task_order: 0,
+        },
+        {
+          phase_id: phases[0].id,
+          name: 'Send client questionnaire',
+          completed: false,
+          task_order: 1,
+        },
+        {
+          phase_id: phases[0].id,
+          name: 'Review competitors and inspiration',
+          completed: false,
+          task_order: 2,
+        },
+        {
+          phase_id: phases[0].id,
+          name: 'Define project goals',
+          completed: false,
+          task_order: 3,
+        },
+        {
+          phase_id: phases[0].id,
+          name: 'Contract signed',
+          completed: false,
+          task_order: 4,
+        }
       )
 
       // Strategy tasks
       tasksData.push(
-        { phase_id: phases[1].id, name: 'Create sitemap', completed: false, task_order: 0 },
-        { phase_id: phases[1].id, name: 'Define user flows', completed: false, task_order: 1 },
-        { phase_id: phases[1].id, name: 'Content strategy document', completed: false, task_order: 2 },
-        { phase_id: phases[1].id, name: 'Technical requirements spec', completed: false, task_order: 3 }
+        {
+          phase_id: phases[1].id,
+          name: 'Create sitemap',
+          completed: false,
+          task_order: 0,
+        },
+        {
+          phase_id: phases[1].id,
+          name: 'Define user flows',
+          completed: false,
+          task_order: 1,
+        },
+        {
+          phase_id: phases[1].id,
+          name: 'Content strategy document',
+          completed: false,
+          task_order: 2,
+        },
+        {
+          phase_id: phases[1].id,
+          name: 'Technical requirements spec',
+          completed: false,
+          task_order: 3,
+        }
       )
 
       // Design tasks
       tasksData.push(
-        { phase_id: phases[2].id, name: 'Create mood board', completed: false, task_order: 0 },
-        { phase_id: phases[2].id, name: 'Define style guide', completed: false, task_order: 1 },
-        { phase_id: phases[2].id, name: 'Design homepage', completed: false, task_order: 2 },
-        { phase_id: phases[2].id, name: 'Design inner pages', completed: false, task_order: 3 },
-        { phase_id: phases[2].id, name: 'Mobile responsive designs', completed: false, task_order: 4 },
-        { phase_id: phases[2].id, name: 'Final design approval', completed: false, task_order: 5 }
+        {
+          phase_id: phases[2].id,
+          name: 'Create mood board',
+          completed: false,
+          task_order: 0,
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Define style guide',
+          completed: false,
+          task_order: 1,
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Design homepage',
+          completed: false,
+          task_order: 2,
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Design inner pages',
+          completed: false,
+          task_order: 3,
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Mobile responsive designs',
+          completed: false,
+          task_order: 4,
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Final design approval',
+          completed: false,
+          task_order: 5,
+        }
       )
 
       // Development tasks
       tasksData.push(
-        { phase_id: phases[3].id, name: 'Set up development environment', completed: false, task_order: 0 },
-        { phase_id: phases[3].id, name: 'Build component library', completed: false, task_order: 1 },
-        { phase_id: phases[3].id, name: 'Develop homepage', completed: false, task_order: 2 },
-        { phase_id: phases[3].id, name: 'Build remaining pages', completed: false, task_order: 3 },
-        { phase_id: phases[3].id, name: 'Implement animations', completed: false, task_order: 4 },
-        { phase_id: phases[3].id, name: 'CMS integration', completed: false, task_order: 5 }
+        {
+          phase_id: phases[3].id,
+          name: 'Set up development environment',
+          completed: false,
+          task_order: 0,
+        },
+        {
+          phase_id: phases[3].id,
+          name: 'Build component library',
+          completed: false,
+          task_order: 1,
+        },
+        {
+          phase_id: phases[3].id,
+          name: 'Develop homepage',
+          completed: false,
+          task_order: 2,
+        },
+        {
+          phase_id: phases[3].id,
+          name: 'Build remaining pages',
+          completed: false,
+          task_order: 3,
+        },
+        {
+          phase_id: phases[3].id,
+          name: 'Implement animations',
+          completed: false,
+          task_order: 4,
+        },
+        {
+          phase_id: phases[3].id,
+          name: 'CMS integration',
+          completed: false,
+          task_order: 5,
+        }
       )
 
       // Launch tasks
       tasksData.push(
-        { phase_id: phases[4].id, name: 'QA testing', completed: false, task_order: 0 },
-        { phase_id: phases[4].id, name: 'SEO optimization', completed: false, task_order: 1 },
-        { phase_id: phases[4].id, name: 'Analytics setup', completed: false, task_order: 2 },
-        { phase_id: phases[4].id, name: 'Final client walkthrough', completed: false, task_order: 3 },
-        { phase_id: phases[4].id, name: 'Go live!', completed: false, task_order: 4 }
+        {
+          phase_id: phases[4].id,
+          name: 'QA testing',
+          completed: false,
+          task_order: 0,
+        },
+        {
+          phase_id: phases[4].id,
+          name: 'SEO optimization',
+          completed: false,
+          task_order: 1,
+        },
+        {
+          phase_id: phases[4].id,
+          name: 'Analytics setup',
+          completed: false,
+          task_order: 2,
+        },
+        {
+          phase_id: phases[4].id,
+          name: 'Final client walkthrough',
+          completed: false,
+          task_order: 3,
+        },
+        {
+          phase_id: phases[4].id,
+          name: 'Go live!',
+          completed: false,
+          task_order: 4,
+        }
       )
 
       await supabase.from('tasks').insert(tasksData)
@@ -167,32 +303,63 @@ export default function NewProject() {
       // 4. Create default deliverables for each phase
       const deliverablesData = [
         // Discovery
-        { phase_id: phases[0].id, name: 'Signed Contract', status: 'not-started' },
-        { phase_id: phases[0].id, name: 'Project Brief', status: 'not-started' },
+        {
+          phase_id: phases[0].id,
+          name: 'Signed Contract',
+          status: 'not-started',
+        },
+        {
+          phase_id: phases[0].id,
+          name: 'Project Brief',
+          status: 'not-started',
+        },
         // Strategy
-        { phase_id: phases[1].id, name: 'Site Architecture', status: 'not-started' },
-        { phase_id: phases[1].id, name: 'Content Strategy Doc', status: 'not-started' },
+        {
+          phase_id: phases[1].id,
+          name: 'Site Architecture',
+          status: 'not-started',
+        },
+        {
+          phase_id: phases[1].id,
+          name: 'Content Strategy Doc',
+          status: 'not-started',
+        },
         // Design
         { phase_id: phases[2].id, name: 'Mood Board', status: 'not-started' },
         { phase_id: phases[2].id, name: 'Style Guide', status: 'not-started' },
-        { phase_id: phases[2].id, name: 'Homepage Design', status: 'not-started' },
-        { phase_id: phases[2].id, name: 'Full Site Designs', status: 'not-started' },
+        {
+          phase_id: phases[2].id,
+          name: 'Homepage Design',
+          status: 'not-started',
+        },
+        {
+          phase_id: phases[2].id,
+          name: 'Full Site Designs',
+          status: 'not-started',
+        },
         // Development
         { phase_id: phases[3].id, name: 'Staging Site', status: 'not-started' },
         { phase_id: phases[3].id, name: 'CMS Setup', status: 'not-started' },
         // Launch
         { phase_id: phases[4].id, name: 'Live Website', status: 'not-started' },
-        { phase_id: phases[4].id, name: 'Training Documentation', status: 'not-started' }
+        {
+          phase_id: phases[4].id,
+          name: 'Training Documentation',
+          status: 'not-started',
+        },
       ]
 
       await supabase.from('deliverables').insert(deliverablesData)
 
       // Success! Redirect to the project editor
       router.push(`/admin/project/${project.id}`)
-
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating project:', err)
-      setError(err.message || 'Failed to create project. Please try again.')
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Failed to create project. Please try again.'
+      setError(message)
       setSaving(false)
     }
   }
@@ -209,18 +376,28 @@ export default function NewProject() {
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Create New Project</h1>
-              <p className="text-sm text-slate-600">Set up a new client project</p>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Create New Project
+              </h1>
+              <p className="text-sm text-slate-600">
+                Set up a new client project
+              </p>
             </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <form onSubmit={createProject} className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <form
+          onSubmit={createProject}
+          className="bg-white rounded-2xl shadow-lg p-8 space-y-6"
+        >
           {/* Client Name */}
           <div>
-            <label htmlFor="clientName" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="clientName"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Client Name *
             </label>
             <input
@@ -236,7 +413,10 @@ export default function NewProject() {
 
           {/* Project Name */}
           <div>
-            <label htmlFor="projectName" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="projectName"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Project Name *
             </label>
             <input
@@ -252,7 +432,10 @@ export default function NewProject() {
 
           {/* Passcode */}
           <div>
-            <label htmlFor="passcode" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="passcode"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Client Passcode *
             </label>
             <div className="flex gap-2">
@@ -275,14 +458,18 @@ export default function NewProject() {
               </button>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              This passcode will be used by the client to access their project portal
+              This passcode will be used by the client to access their project
+              portal
             </p>
           </div>
 
           {/* Dates */}
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="startDate" className="block text-sm font-semibold text-slate-900 mb-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-semibold text-slate-900 mb-2"
+              >
                 Start Date *
               </label>
               <input
@@ -296,7 +483,10 @@ export default function NewProject() {
             </div>
 
             <div>
-              <label htmlFor="launchDate" className="block text-sm font-semibold text-slate-900 mb-2">
+              <label
+                htmlFor="launchDate"
+                className="block text-sm font-semibold text-slate-900 mb-2"
+              >
                 Target Launch Date *
               </label>
               <input
@@ -320,8 +510,9 @@ export default function NewProject() {
           {/* Info Box */}
           <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
             <p className="text-sm text-blue-700">
-              This will automatically create all 5 project phases (Discovery, Strategy, Design, Development, Launch) 
-              with default tasks and deliverables. You can customize everything after creation.
+              This will automatically create all 5 project phases (Discovery,
+              Strategy, Design, Development, Launch) with default tasks and
+              deliverables. You can customize everything after creation.
             </p>
           </div>
 

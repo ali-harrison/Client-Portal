@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Menu,
   X,
+  LucideIcon,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import {
@@ -81,14 +82,14 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
       if (phaseCardsRef.current) {
         const cards = phaseCardsRef.current.querySelectorAll('.phase-card')
         cards.forEach((card, i) => {
-          floatIn(card, 0.5 + i * 0.1)
-          cardHover(card)
+          floatIn(card as HTMLElement, 0.5 + i * 0.1)
+          cardHover(card as HTMLElement)
         })
       }
 
       // Add hover effects to all cards
       const allCards = document.querySelectorAll('.hover-card')
-      allCards.forEach((card) => cardHover(card))
+      allCards.forEach((card) => cardHover(card as HTMLElement))
     }
   }, [loading])
 
@@ -115,12 +116,19 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
         setPhases(phasesData)
 
         for (const phase of phasesData) {
-          const { data: tasksData } = await supabase
+          const { data: tasksData, error: tasksError } = await supabase
             .from('tasks')
             .select('*')
             .eq('phase_id', phase.id)
             .order('task_order', { ascending: true })
 
+          if (tasksError) {
+            console.error(
+              'Error fetching tasks for phase',
+              phase.id,
+              tasksError
+            )
+          }
           if (tasksData) {
             setTasks((prev) => ({ ...prev, [phase.id]: tasksData }))
           }
@@ -232,9 +240,8 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
   const currentDeliverables = currentPhase
     ? deliverables[currentPhase.id] || []
     : []
-
-  const getPhaseIcon = (phaseName: string) => {
-    const icons: Record<string, any> = {
+  const getPhaseIcon = (phaseName: string): LucideIcon => {
+    const icons: Record<string, LucideIcon> = {
       Discovery: Users,
       Strategy: FileText,
       Design: Palette,
@@ -255,8 +262,17 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
     return badges[status] || badges.upcoming
   }
 
-  const getDeliverableStatus = (status: string) => {
-    const statuses: Record<string, any> = {
+  // interface ClientPortalProps {
+  //   projectId: string
+  // }
+
+  interface DeliverableStatusType {
+    color: string
+    bg: string
+    text: string
+  }
+  const getDeliverableStatus = (status: string): DeliverableStatusType => {
+    const statuses: Record<string, DeliverableStatusType> = {
       delivered: {
         color: 'text-emerald-600',
         bg: 'bg-emerald-50/50',

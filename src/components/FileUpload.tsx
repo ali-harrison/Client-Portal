@@ -2,7 +2,14 @@
 
 import { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Upload, File, Image, FileText, CheckCircle, AlertCircle } from 'lucide-react'
+import {
+  Upload,
+  File,
+  Image,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react'
 
 interface FileUploadProps {
   projectId: string
@@ -10,9 +17,21 @@ interface FileUploadProps {
   onUploadComplete?: () => void
 }
 
-export default function FileUpload({ projectId, deliverableId, onUploadComplete }: FileUploadProps) {
+interface UploadedFile {
+  id: string
+  file_name: string
+  file_url: string
+  file_type: string
+  file_size: number
+}
+
+export default function FileUpload({
+  projectId,
+  deliverableId,
+  onUploadComplete,
+}: FileUploadProps) {
   const [uploading, setUploading] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -24,14 +43,16 @@ export default function FileUpload({ projectId, deliverableId, onUploadComplete 
     setError('')
 
     try {
-      const uploaded: any[] = []
+      const uploaded: UploadedFile[] = []
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const fileExt = file.name.split('.').pop()
-        const fileName = `${projectId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const fileName = `${projectId}/${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(7)}.${fileExt}`
 
-        const { data: storageData, error: storageError } = await supabase.storage
+        const { error: storageError } = await supabase.storage
           .from('project-files')
           .upload(fileName, file)
 
@@ -41,9 +62,9 @@ export default function FileUpload({ projectId, deliverableId, onUploadComplete 
           continue
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('project-files')
-          .getPublicUrl(fileName)
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('project-files').getPublicUrl(fileName)
 
         const { data: fileRecord, error: dbError } = await supabase
           .from('files')
@@ -54,7 +75,7 @@ export default function FileUpload({ projectId, deliverableId, onUploadComplete 
             file_url: publicUrl,
             file_type: file.type,
             file_size: file.size,
-            uploaded_by: 'admin'
+            uploaded_by: 'admin',
           })
           .select()
           .single()
@@ -64,7 +85,7 @@ export default function FileUpload({ projectId, deliverableId, onUploadComplete 
         }
       }
 
-      setUploadedFiles(prev => [...prev, ...uploaded])
+      setUploadedFiles((prev) => [...prev, ...uploaded])
       setUploading(false)
 
       if (onUploadComplete) {
@@ -146,14 +167,22 @@ export default function FileUpload({ projectId, deliverableId, onUploadComplete 
           {uploadedFiles.map((file, idx) => {
             const FileIcon = getFileIcon(file.file_type)
             return (
-              <div key={idx} className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg"
+              >
                 <FileIcon className="w-5 h-5 text-green-600" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-slate-900 truncate">{file.file_name}</div>
-                  <div className="text-xs text-slate-500">{formatFileSize(file.file_size)}</div>
+                  <div className="text-sm font-medium text-slate-900 truncate">
+                    {file.file_name}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {formatFileSize(file.file_size)}
+                  </div>
                 </div>
-                
-                 <a href={file.file_url}
+
+                <a
+                  href={file.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
