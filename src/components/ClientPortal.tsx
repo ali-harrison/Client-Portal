@@ -63,6 +63,10 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const phaseCardsRef = useRef<HTMLDivElement>(null)
 
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [scheduleMessage, setScheduleMessage] = useState('')
+
   useEffect(() => {
     fetchProjectData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -697,9 +701,21 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                   Quick Links
                 </h3>
                 <div className="space-y-3">
-                  <a
-                    href="#"
-                    className="flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
+                  <button
+                    onClick={() => {
+                      // Scroll to first deliverable comment input
+                      const firstDeliverable = document.querySelector(
+                        'input[placeholder*="Leave feedback"]'
+                      ) as HTMLInputElement
+                      if (firstDeliverable) {
+                        firstDeliverable.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center',
+                        })
+                        firstDeliverable.focus()
+                      }
+                    }}
+                    className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-3">
                       <Palette className="w-5 h-5 text-pink-500" />
@@ -708,10 +724,11 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                       </span>
                     </div>
                     <ExternalLink className="w-4 h-4 text-slate-400" />
-                  </a>
-                  <a
-                    href="#"
-                    className="flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
+                  </button>
+
+                  <button
+                    onClick={() => setShowUploadModal(true)}
+                    className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-3">
                       <Upload className="w-5 h-5 text-blue-500" />
@@ -720,10 +737,11 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                       </span>
                     </div>
                     <ExternalLink className="w-4 h-4 text-slate-400" />
-                  </a>
-                  <a
-                    href="#"
-                    className="flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
+                  </button>
+
+                  <button
+                    onClick={() => setShowScheduleModal(true)}
+                    className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-white/40 transition-all duration-300 group backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-3">
                       <Calendar className="w-5 h-5 text-amber-500" />
@@ -732,7 +750,7 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                       </span>
                     </div>
                     <ExternalLink className="w-4 h-4 text-slate-400" />
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -744,13 +762,84 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                   Questions about the project? We&apos;re here to help!
                 </p>
                 <a
-                  href={`mailto:your-email@yourdomain.com?subject=Question about ${project.project_name}&body=Hi,%0D%0A%0D%0AI have a question about my project:%0D%0A%0D%0A`}
+                  href={`mailto:tewairama@proton.me?subject=Question about ${project.project_name}&body=Hi,%0D%0A%0D%0AI have a question about my project:%0D%0A%0D%0A`}
                   className="w-full px-6 py-4 bg-white/90 backdrop-blur-sm text-slate-900 rounded-xl hover:bg-white transition-all duration-300 font-light tracking-wide flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 >
                   <MessageSquare className="w-4 h-4" />
                   Send Message
                 </a>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Modal */}
+        {showUploadModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-light text-slate-800">
+                  Upload Assets
+                </h3>
+                <button
+                  onClick={() => setShowUploadModal(false)}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-600 font-light mb-6">
+                Please email your assets to:{' '}
+                <a
+                  href={`mailto:tewairama@proton.me?subject=Assets for ${project.project_name}`}
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  tewairama@proton.me
+                </a>
+              </p>
+              <p className="text-sm text-slate-500 font-light">
+                Or if you prefer, you can use a file sharing service like
+                Dropbox or Google Drive and send us the link.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Schedule Meeting Modal */}
+        {showScheduleModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-light text-slate-800">
+                  Schedule a Meeting
+                </h3>
+                <button
+                  onClick={() => setShowScheduleModal(false)}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <textarea
+                value={scheduleMessage}
+                onChange={(e) => setScheduleMessage(e.target.value)}
+                placeholder="Let us know your preferred dates/times or any specific topics you'd like to discuss..."
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent font-light resize-none"
+                rows={5}
+              />
+              <button
+                onClick={() => {
+                  window.location.href = `mailto:tewairama@proton.me?subject=Meeting Request - ${
+                    project.project_name
+                  }&body=${encodeURIComponent(scheduleMessage)}`
+                  setShowScheduleModal(false)
+                  setScheduleMessage('')
+                }}
+                disabled={!scheduleMessage.trim()}
+                className="w-full mt-4 px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed font-light tracking-wide"
+              >
+                Send Meeting Request
+              </button>
             </div>
           </div>
         )}
