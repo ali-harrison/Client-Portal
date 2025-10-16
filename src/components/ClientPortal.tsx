@@ -72,6 +72,17 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowUploadModal(false)
+        setShowScheduleModal(false)
+      }
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [])
+
   useGSAP(() => {
     if (!loading) {
       if (headerRef.current) {
@@ -775,8 +786,14 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
 
         {/* Upload Modal */}
         {showUploadModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowUploadModal(false)}
+          >
+            <div
+              className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-light text-slate-800">
                   Upload Assets
@@ -801,14 +818,26 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                 Or if you prefer, you can use a file sharing service like
                 Dropbox or Google Drive and send us the link.
               </p>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="w-full mt-6 px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all duration-300 font-light tracking-wide"
+              >
+                Got it!
+              </button>
             </div>
           </div>
         )}
 
         {/* Schedule Meeting Modal */}
         {showScheduleModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowScheduleModal(false)}
+          >
+            <div
+              className="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-light text-slate-800">
                   Schedule a Meeting
@@ -827,19 +856,30 @@ export default function ClientPortal({ projectId }: ClientPortalProps) {
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent font-light resize-none"
                 rows={5}
               />
-              <button
-                onClick={() => {
-                  window.location.href = `mailto:tewairama@proton.me?subject=Meeting Request - ${
-                    project.project_name
-                  }&body=${encodeURIComponent(scheduleMessage)}`
-                  setShowScheduleModal(false)
-                  setScheduleMessage('')
-                }}
-                disabled={!scheduleMessage.trim()}
-                className="w-full mt-4 px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed font-light tracking-wide"
-              >
-                Send Meeting Request
-              </button>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setShowScheduleModal(false)
+                    setScheduleMessage('')
+                  }}
+                  className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:border-slate-900 transition-all duration-300 font-light tracking-wide"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.href = `mailto:tewairama@proton.me?subject=Meeting Request - ${
+                      project.project_name
+                    }&body=${encodeURIComponent(scheduleMessage)}`
+                    setShowScheduleModal(false)
+                    setScheduleMessage('')
+                  }}
+                  disabled={!scheduleMessage.trim()}
+                  className="flex-1 px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed font-light tracking-wide"
+                >
+                  Send Request
+                </button>
+              </div>
             </div>
           </div>
         )}
