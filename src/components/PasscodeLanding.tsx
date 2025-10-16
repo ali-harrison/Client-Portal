@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Lock, Sparkles, ArrowRight } from 'lucide-react'
 import { floatIn, blurToFocus, revealText } from '@/utils/animations'
@@ -12,11 +13,15 @@ interface PasscodeLandingProps {
   onSuccess: () => void
 }
 
-export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandingProps) {
+export default function PasscodeLanding({
+  projectId,
+  onSuccess,
+}: PasscodeLandingProps) {
   const [passcode, setPasscode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
   const router = useRouter()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -33,7 +38,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
         duration: 20,
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
       })
     }
 
@@ -56,7 +61,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
         duration: 2,
         stagger: 0.2,
         repeat: -1,
-        ease: 'power2.out'
+        ease: 'power2.out',
       })
     }
   }, [])
@@ -70,14 +75,14 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
       const response = await fetch('/api/verify-passcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId, passcode: passcode.trim() })
+        body: JSON.stringify({ projectId, passcode: passcode.trim() }),
       })
 
       const data = await response.json()
 
       if (data.success) {
         setSuccess(true)
-        
+
         // Animate success
         if (containerRef.current) {
           gsap.to(containerRef.current, {
@@ -88,18 +93,24 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
             ease: 'power2.in',
             onComplete: () => {
               onSuccess()
-            }
+            },
           })
         }
       } else {
         setError('Invalid passcode. Please try again.')
-        
+
         // Shake animation on error
         if (formRef.current) {
           gsap.fromTo(
             formRef.current,
             { x: -10 },
-            { x: 10, duration: 0.1, repeat: 5, yoyo: true, ease: 'power1.inOut' }
+            {
+              x: 10,
+              duration: 0.1,
+              repeat: 5,
+              yoyo: true,
+              ease: 'power1.inOut',
+            }
           )
         }
       }
@@ -111,7 +122,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#9ca889] via-[#7ba8a8] to-[#6ba5c7] bg-[length:200%_200%]"
     >
@@ -133,9 +144,18 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
 
       {/* Floating orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-200/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-teal-200/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+        <div
+          className="absolute top-1/4 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: '0s' }}
+        />
+        <div
+          className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-200/10 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: '2s' }}
+        />
+        <div
+          className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-teal-200/10 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: '4s' }}
+        />
       </div>
 
       {/* Main content */}
@@ -148,7 +168,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
         </div>
 
         {/* Title */}
-        <h1 
+        <h1
           ref={titleRef}
           className="text-5xl md:text-6xl font-light text-center mb-4 text-white tracking-wide"
           style={{
@@ -159,7 +179,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
         </h1>
 
         {/* Subtitle */}
-        <p 
+        <p
           ref={subtitleRef}
           className="text-center text-white/80 mb-12 font-light tracking-wide text-lg"
         >
@@ -170,7 +190,10 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
         <div ref={formRef}>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-8 border border-white/30 shadow-2xl">
-              <label htmlFor="passcode" className="block text-sm font-light text-white/90 mb-3 tracking-wide">
+              <label
+                htmlFor="passcode"
+                className="block text-sm font-light text-white/90 mb-3 tracking-wide"
+              >
                 Access Code
               </label>
               <input
@@ -184,7 +207,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
                 disabled={loading || success}
                 autoFocus
               />
-              
+
               {error && (
                 <p className="mt-4 text-red-200 text-sm text-center font-light animate-pulse">
                   {error}
@@ -218,8 +241,11 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
 
           {/* Helper text */}
           <p className="text-center text-white/60 text-sm mt-6 font-light">
-            Don't have an access code?{' '}
-            <a href="mailto:hello@yourdomain.com" className="text-white/90 hover:text-white underline transition-colors">
+            Don&apos;t have an access code?{' '}
+            <a
+              href="mailto:hello@yourdomain.com"
+              className="text-white/90 hover:text-white underline transition-colors"
+            >
               Contact us
             </a>
           </p>
@@ -227,7 +253,7 @@ export default function PasscodeLanding({ projectId, onSuccess }: PasscodeLandin
       </div>
 
       {/* Grain texture overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,

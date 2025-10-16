@@ -19,7 +19,7 @@ export default function AdminDashboard() {
       return
     }
     fetchProjects()
-  }, [])
+  }, [router])
 
   const fetchProjects = async () => {
     const { data } = await supabase
@@ -56,8 +56,12 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-              <p className="text-sm text-slate-600">Manage all client projects</p>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Admin Dashboard
+              </h1>
+              <p className="text-sm text-slate-600">
+                Manage all client projects
+              </p>
             </div>
             <button
               onClick={handleLogout}
@@ -79,7 +83,9 @@ export default function AdminDashboard() {
                 <FolderOpen className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-slate-900">{projects.length}</div>
+                <div className="text-2xl font-bold text-slate-900">
+                  {projects.length}
+                </div>
                 <div className="text-sm text-slate-600">Total Projects</div>
               </div>
             </div>
@@ -92,7 +98,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-slate-900">
-                  {projects.filter(p => p.current_phase < 4).length}
+                  {projects.filter((p) => p.current_phase < 4).length}
                 </div>
                 <div className="text-sm text-slate-600">Active Projects</div>
               </div>
@@ -106,12 +112,17 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-slate-900">
-                  {projects.filter(p => {
-                    const launch = new Date(p.launch_date)
-                    const today = new Date()
-                    const diff = Math.ceil((launch.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                    return diff <= 30 && diff > 0
-                  }).length}
+                  {
+                    projects.filter((p) => {
+                      const launch = new Date(p.launch_date)
+                      const today = new Date()
+                      const diff = Math.ceil(
+                        (launch.getTime() - today.getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      )
+                      return diff <= 30 && diff > 0
+                    }).length
+                  }
                 </div>
                 <div className="text-sm text-slate-600">Launching Soon</div>
               </div>
@@ -141,8 +152,12 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900">{project.project_name}</h3>
-                    <p className="text-sm text-slate-600">{project.client_name}</p>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      {project.project_name}
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      {project.client_name}
+                    </p>
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-slate-500">Launch Date</div>
@@ -153,11 +168,15 @@ export default function AdminDashboard() {
                 </div>
                 <div className="mt-3 flex items-center gap-4">
                   <div className="flex-1">
-                    <div className="text-xs text-slate-500 mb-1">Phase {project.current_phase + 1} of 5</div>
+                    <div className="text-xs text-slate-500 mb-1">
+                      Phase {project.current_phase + 1} of 5
+                    </div>
                     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-slate-900 transition-all"
-                        style={{ width: `${((project.current_phase + 1) / 5) * 100}%` }}
+                        style={{
+                          width: `${((project.current_phase + 1) / 5) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -171,7 +190,9 @@ export default function AdminDashboard() {
             {projects.length === 0 && (
               <div className="text-center py-12">
                 <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-600">No projects yet. Create your first one!</p>
+                <p className="text-slate-600">
+                  No projects yet. Create your first one!
+                </p>
               </div>
             )}
           </div>

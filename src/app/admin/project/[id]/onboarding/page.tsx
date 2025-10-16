@@ -109,6 +109,7 @@ export default function AdminOnboardingView() {
       return
     }
     fetchOnboardingData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const fetchOnboardingData = async () => {

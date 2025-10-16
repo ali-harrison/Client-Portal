@@ -13,10 +13,12 @@ export default function OnboardingPage() {
 
   const [loading, setLoading] = useState(true)
   const [alreadyCompleted, setAlreadyCompleted] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [project, setProject] = useState<unknown>(null)
 
   useEffect(() => {
     checkOnboardingStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const checkOnboardingStatus = async () => {

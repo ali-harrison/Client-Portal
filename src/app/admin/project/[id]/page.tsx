@@ -4,22 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { isAdminLoggedIn } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
-import {
-  Project,
-  Phase,
-  Task,
-  Deliverable,
-  ProjectComment,
-  ProjectFile,
-} from '@/lib/types' // Changed Comment to ProjectComment
+import { Project, Phase, Task, Deliverable, ProjectComment } from '@/lib/types' // Changed Comment to ProjectComment
 import {
   CheckCircle,
   Circle,
   ArrowLeft,
-  Save,
   Upload,
   FileText,
-  Trash2,
   MessageSquare,
   Users,
   Palette,
@@ -51,7 +42,9 @@ export default function AdminProjectEditor() {
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
     null
   )
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [newComment, setNewComment] = useState<Record<string, string>>({})
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submittingComment, setSubmittingComment] = useState<string | null>(
     null
   )
@@ -62,6 +55,7 @@ export default function AdminProjectEditor() {
       return
     }
     fetchProjectData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const fetchProjectData = async () => {

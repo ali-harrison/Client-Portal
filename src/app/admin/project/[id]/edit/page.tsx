@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { isAdminLoggedIn } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
@@ -28,15 +28,7 @@ export default function EditProject() {
   const [launchDate, setLaunchDate] = useState('')
   const [currentPhase, setCurrentPhase] = useState(0)
 
-  useEffect(() => {
-    if (!isAdminLoggedIn()) {
-      router.push('/admin')
-      return
-    }
-    fetchProject()
-  }, [projectId])
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     const { data } = await supabase
       .from('projects')
       .select('*')
@@ -53,7 +45,15 @@ export default function EditProject() {
       setCurrentPhase(data.current_phase)
     }
     setLoading(false)
-  }
+  }, [projectId])
+
+  useEffect(() => {
+    if (!isAdminLoggedIn()) {
+      router.push('/admin')
+      return
+    }
+    fetchProject()
+  }, [router, fetchProject])
 
   const updateProject = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,7 +69,7 @@ export default function EditProject() {
           passcode: passcode,
           start_date: startDate,
           launch_date: launchDate,
-          current_phase: currentPhase
+          current_phase: currentPhase,
         })
         .eq('id', projectId)
 
@@ -78,8 +78,10 @@ export default function EditProject() {
       }
 
       router.push(`/admin/project/${projectId}`)
-    } catch (err: any) {
-      setError(err.message || 'Failed to update project')
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to update project'
+      setError(message)
       setSaving(false)
     }
   }
@@ -97,8 +99,10 @@ export default function EditProject() {
       }
 
       router.push('/admin/dashboard')
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete project')
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to delete project'
+      setError(message)
       setDeleting(false)
       setShowDeleteConfirm(false)
     }
@@ -137,7 +141,9 @@ export default function EditProject() {
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Edit Project</h1>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Edit Project
+              </h1>
               <p className="text-sm text-slate-600">Update project details</p>
             </div>
           </div>
@@ -145,9 +151,15 @@ export default function EditProject() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <form onSubmit={updateProject} className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <form
+          onSubmit={updateProject}
+          className="bg-white rounded-2xl shadow-lg p-8 space-y-6"
+        >
           <div>
-            <label htmlFor="clientName" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="clientName"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Client Name
             </label>
             <input
@@ -161,7 +173,10 @@ export default function EditProject() {
           </div>
 
           <div>
-            <label htmlFor="projectName" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="projectName"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Project Name
             </label>
             <input
@@ -175,7 +190,10 @@ export default function EditProject() {
           </div>
 
           <div>
-            <label htmlFor="passcode" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="passcode"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Client Passcode
             </label>
             <input
@@ -190,7 +208,10 @@ export default function EditProject() {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="startDate" className="block text-sm font-semibold text-slate-900 mb-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-semibold text-slate-900 mb-2"
+              >
                 Start Date
               </label>
               <input
@@ -204,7 +225,10 @@ export default function EditProject() {
             </div>
 
             <div>
-              <label htmlFor="launchDate" className="block text-sm font-semibold text-slate-900 mb-2">
+              <label
+                htmlFor="launchDate"
+                className="block text-sm font-semibold text-slate-900 mb-2"
+              >
                 Target Launch Date
               </label>
               <input
@@ -219,7 +243,10 @@ export default function EditProject() {
           </div>
 
           <div>
-            <label htmlFor="currentPhase" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label
+              htmlFor="currentPhase"
+              className="block text-sm font-semibold text-slate-900 mb-2"
+            >
               Current Phase
             </label>
             <select
@@ -267,7 +294,8 @@ export default function EditProject() {
         <div className="bg-white rounded-2xl shadow-lg p-8 mt-6 border-2 border-red-200">
           <h3 className="text-lg font-bold text-red-900 mb-2">Danger Zone</h3>
           <p className="text-sm text-slate-600 mb-4">
-            Deleting this project will permanently remove all phases, tasks, deliverables, comments, and files. This action cannot be undone.
+            Deleting this project will permanently remove all phases, tasks,
+            deliverables, comments, and files. This action cannot be undone.
           </p>
           <button
             onClick={() => setShowDeleteConfirm(true)}
@@ -283,9 +311,13 @@ export default function EditProject() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Delete Project?</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-4">
+              Delete Project?
+            </h3>
             <p className="text-slate-600 mb-6">
-              Are you sure you want to delete <strong>{projectName}</strong>? This will permanently delete all project data including phases, tasks, deliverables, and files. This action cannot be undone.
+              Are you sure you want to delete <strong>{projectName}</strong>?
+              This will permanently delete all project data including phases,
+              tasks, deliverables, and files. This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
